@@ -18,4 +18,5 @@ public class StandardError implements Serializable {
   private Integer status;
   private String error;
   private String message;
+
 }
