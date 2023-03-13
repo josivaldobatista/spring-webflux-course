@@ -1,4 +1,4 @@
-package br.com.jfb.webfluxcourse.api;
+package br.com.jfb.webfluxcourse.controller;
 
 import br.com.jfb.webfluxcourse.model.request.UserRequest;
 import br.com.jfb.webfluxcourse.model.response.UserResponse;
@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface WebFluxCourseApi {
+@RequestMapping(value = "/users")
+public interface UserController {
 
   @PostMapping
   ResponseEntity<Mono<Void>> save(@RequestBody UserRequest request);
