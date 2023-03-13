@@ -1,5 +1,7 @@
 package br.com.jfb.webfluxcourse.api;
 
+import br.com.jfb.webfluxcourse.model.request.UserRequest;
+import br.com.jfb.webfluxcourse.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
