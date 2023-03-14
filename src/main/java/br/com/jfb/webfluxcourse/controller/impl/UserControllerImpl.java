@@ -28,12 +28,14 @@ public class UserControllerImpl implements UserController {
 
   @Override
   public ResponseEntity<Mono<UserResponse>> findById(String id) {
-    return ResponseEntity.ok().body(service.findById(id).map(mapper::toResponse)); // <- Method reference
+    return ResponseEntity.ok().body(service.findById(id).map(
+        mapper::toResponse)); // <- Method reference
   }
 
   @Override
   public ResponseEntity<Flux<UserResponse>> findAll() {
-    return null;
+    return ResponseEntity.ok().body(service.findAll().map(
+        obj -> mapper.toResponse(obj))); // <- Poderia usar aqui o Method reference como acima
   }
 
   @Override
@@ -45,4 +47,5 @@ public class UserControllerImpl implements UserController {
   public ResponseEntity<Mono<Void>> delete(String id) {
     return null;
   }
+
 }
