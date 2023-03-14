@@ -18,5 +18,4 @@ public class TrimStringValidator implements ConstraintValidator<TrimString, Stri
 //    return value.trim().length() == value.length();
 //  }
 
-
 }

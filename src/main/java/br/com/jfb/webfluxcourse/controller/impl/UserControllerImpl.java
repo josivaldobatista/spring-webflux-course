@@ -1,6 +1,7 @@
 package br.com.jfb.webfluxcourse.controller.impl;
 
 import br.com.jfb.webfluxcourse.controller.UserController;
+import br.com.jfb.webfluxcourse.mapper.UserMapper;
 import br.com.jfb.webfluxcourse.model.request.UserRequest;
 import br.com.jfb.webfluxcourse.model.response.UserResponse;
 import br.com.jfb.webfluxcourse.service.UserService;
@@ -16,6 +17,8 @@ public class UserControllerImpl implements UserController {
 
   @Autowired
   private UserService service;
+  @Autowired
+  private UserMapper mapper;
 
   @Override
   public ResponseEntity<Mono<Void>> save(final UserRequest request) {
@@ -25,7 +28,7 @@ public class UserControllerImpl implements UserController {
 
   @Override
   public ResponseEntity<Mono<UserResponse>> findById(String id) {
-    return null;
+    return ResponseEntity.ok().body(service.findById(id).map(mapper::toResponse)); // <- Method reference
   }
 
   @Override

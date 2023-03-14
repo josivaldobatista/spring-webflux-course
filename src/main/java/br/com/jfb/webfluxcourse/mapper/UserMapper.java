@@ -2,6 +2,7 @@ package br.com.jfb.webfluxcourse.mapper;
 
 import br.com.jfb.webfluxcourse.entity.User;
 import br.com.jfb.webfluxcourse.model.request.UserRequest;
+import br.com.jfb.webfluxcourse.model.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,5 +18,7 @@ public interface UserMapper {
 
   @Mapping(target = "id", ignore = true)
   User toEntity(final UserRequest request);
+
+  UserResponse toResponse(final User entity);
 
 }
