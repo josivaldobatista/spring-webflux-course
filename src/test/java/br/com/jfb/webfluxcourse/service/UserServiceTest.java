@@ -37,10 +37,24 @@ class UserServiceTest {
     Mono<User> result = service.save(request);
 
     StepVerifier.create(result)
-        .expectNextMatches(user -> user instanceof User)// Poderia usar com methods reference aqui
+        .expectNextMatches(user -> user.getClass() == User.class)
         .expectComplete()
         .verify();
 
     verify(repository, times(1)).save(any(User.class)); //<- só para teste essa linha
+  }
+
+  @Test
+  void should_find_by_id_a_user() {
+    when(repository.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+    Mono<User> result = service.findById("123");
+
+    StepVerifier.create(result)
+        .expectNextMatches(user -> user.getClass() == User.class)
+        .expectComplete()
+        .verify();
+
+    verify(repository, times(1)).findById(anyString());
   }
 }
