@@ -1,5 +1,13 @@
 # Estudos Programação Reativa
-## Programação Reativa com Spring Webflux, Java e MongoDB, Testes Unitário e Integração com JUnit5 e Mockito
+## O que é a programação reativa?
+A programação reativa é um paradgma de progração que promove uma abordagem assíncrona, sem bloqueio e orientada a eventos para o processamento de dados. A programação reativa envolve modelar dados e eventos como fluxos de dados para reagir às mudanças nesses fluxos.
+
+## Solicitação Bloqueante vs ## Solicitação não Bloqueante
+### Solicitação Bloqueante
+![Arquitetura](https://github.com/josivaldobatista/spring-webflux-course/blob/main/ci/img/solicitacao_bloqueante.png)
+
+### Solicitação Bloqueante
+![Arquitetura](https://github.com/josivaldobatista/spring-webflux-course/blob/main/ci/img/solicitacao_nao_bloqueante.png)
 
 ## Descrição
 A programação reativa é uma das tecnologias mais inovadoras e valiosas da atualidade, que permite que você construa aplicativos que são altamente performáticos, escaláveis e confiáveis. Aqui estão algumas razões pelas quais vale a pena considerar a programação reativa na construção de seus aplicativos:
