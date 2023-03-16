@@ -17,8 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import static br.com.jfb.webfluxcourse.ConstantsTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -31,11 +31,6 @@ import static reactor.core.publisher.Mono.just;
 @AutoConfigureWebTestClient
 @ExtendWith(SpringExtension.class)
 class UserControllerImplTest {
-
-  public static final String ID = "123456";
-  public static final String NAME = "Maria Brown";
-  public static final String EMAIL = "maria@email.com";
-  public static final String PASSWORD = "123";
 
   @Autowired
   private WebTestClient webTestClient;
@@ -56,7 +51,7 @@ class UserControllerImplTest {
 
     when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
 
-    webTestClient.post().uri("/users")
+    webTestClient.post().uri(BASE_URI)
         .contentType(APPLICATION_JSON)
         .body(fromValue(request))
         .exchange()
@@ -72,13 +67,13 @@ class UserControllerImplTest {
 
     when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
 
-    webTestClient.post().uri("/users")
+    webTestClient.post().uri(BASE_URI)
         .contentType(APPLICATION_JSON)
         .body(fromValue(request))
         .exchange()
         .expectStatus().isBadRequest()
         .expectBody()
-        .jsonPath("$.path").isEqualTo("/users")
+        .jsonPath("$.path").isEqualTo(BASE_URI)
         .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
         .jsonPath("$.error").isEqualTo("Validation Error")
         .jsonPath("$.message").isEqualTo("Error on validation attributes")
@@ -94,12 +89,12 @@ class UserControllerImplTest {
     when(service.findById(anyString())).thenReturn(just(User.builder().build()));
     when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-    webTestClient.get().uri("/users/" + 123456)
+    webTestClient.get().uri(BASE_URI + "/" + ID)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
         .expectBody()
-        .jsonPath("$.id").isEqualTo(123456)
+        .jsonPath("$.id").isEqualTo("640e8f7dc774e57dfa64cfda")
         .jsonPath("$.name").isEqualTo("Maria Brown")
         .jsonPath("$.email").isEqualTo("maria@email.com")
         .jsonPath("$.password").isEqualTo(123);
@@ -111,15 +106,14 @@ class UserControllerImplTest {
   @Test
   @DisplayName("Test find by id endpoint with not_found")
   void should_test_find_by_id_endpoint_with_not_found() {
-    when(service.findById(anyString())).thenReturn(Mono.error(
-        new ObjectNotFoundException("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User")));
+    when(service.findById(anyString())).thenThrow(new ObjectNotFoundException("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User"));
 
-    webTestClient.get().uri("/users/" + "640e8f7dc774e57dfa64cf")
+    webTestClient.get().uri(BASE_URI + "/" + "640e8f7dc774e57dfa64cf")
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound()
         .expectBody()
-        .jsonPath("$.path").isEqualTo("/users/640e8f7dc774e57dfa64cf")
+        .jsonPath("$.path").isEqualTo(BASE_URI + "/640e8f7dc774e57dfa64cf")
         .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
         .jsonPath("$.error").isEqualTo("Not Found")
         .jsonPath("$.message").isEqualTo("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User");
@@ -133,12 +127,12 @@ class UserControllerImplTest {
     when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
     when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-    webTestClient.get().uri("/users")
+    webTestClient.get().uri(BASE_URI)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk()
         .expectBody()
-        .jsonPath("$.[0].id").isEqualTo(123456)
+        .jsonPath("$.[0].id").isEqualTo("640e8f7dc774e57dfa64cfda")
         .jsonPath("$.[0].name").isEqualTo("Maria Brown")
         .jsonPath("$.[0].email").isEqualTo("maria@email.com")
         .jsonPath("$.[0].password").isEqualTo(123);
@@ -156,7 +150,7 @@ class UserControllerImplTest {
     when(service.update(anyString(), any(UserRequest.class))).thenReturn(just(User.builder().build()));
     when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-    webTestClient.patch().uri("/users/" + ID)
+    webTestClient.patch().uri(BASE_URI + "/" + ID)
         .contentType(APPLICATION_JSON)
         .body(fromValue(request))
         .exchange()
@@ -172,6 +166,30 @@ class UserControllerImplTest {
   }
 
   @Test
-  void delete() {
+  @DisplayName("Test delete endpoint with success")
+  void should_test_delete_endpoint_with_success() {
+    when(service.delete(anyString())).thenReturn(just(User.builder().build()));
+
+    webTestClient.delete().uri(BASE_URI + "/" + ID)
+        .exchange()
+        .expectStatus().isOk();
+
+    verify(service).delete(anyString());
+  }
+
+  @Test
+  @DisplayName("Test delete endpoint with not_found")
+  void should_test_delete_endpoint_with_not_found() {
+    when(service.delete(anyString())).thenThrow(new ObjectNotFoundException("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User"));
+
+    webTestClient.delete().uri(BASE_URI + "/" + "640e8f7dc774e57dfa64cf")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound()
+        .expectBody()
+        .jsonPath("$.path").isEqualTo(BASE_URI + "/640e8f7dc774e57dfa64cf")
+        .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
+        .jsonPath("$.error").isEqualTo("Not Found")
+        .jsonPath("$.message").isEqualTo("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User");
   }
 }
