@@ -55,7 +55,7 @@ public class ControllerExceptionHandler {
         now(),
         request.getPath().toString(),
         BAD_REQUEST.value(),
-        "ValidationError",
+        "Validation Error",
         "Error on validation attributes"
     );
 
