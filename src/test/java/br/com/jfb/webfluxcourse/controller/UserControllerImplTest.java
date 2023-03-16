@@ -25,6 +25,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
+import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -53,7 +54,7 @@ class UserControllerImplTest {
   void should_test_endpoint_save_with_success() {
     final var request = new UserRequest(NAME, EMAIL, PASSWORD);
 
-    when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+    when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
 
     webTestClient.post().uri("/users")
         .contentType(APPLICATION_JSON)
@@ -69,7 +70,7 @@ class UserControllerImplTest {
   void should_test_endpoint_save_with_bad_request() {
     final var request = new UserRequest(NAME.concat(" "), EMAIL, PASSWORD);
 
-    when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+    when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
 
     webTestClient.post().uri("/users")
         .contentType(APPLICATION_JSON)
@@ -90,7 +91,7 @@ class UserControllerImplTest {
   void should_test_find_by_id_endpoint_with_success() {
     final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
 
-    when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+    when(service.findById(anyString())).thenReturn(just(User.builder().build()));
     when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
 
     webTestClient.get().uri("/users/" + 123456)
@@ -102,12 +103,16 @@ class UserControllerImplTest {
         .jsonPath("$.name").isEqualTo("Maria Brown")
         .jsonPath("$.email").isEqualTo("maria@email.com")
         .jsonPath("$.password").isEqualTo(123);
+
+    verify(service).findById(anyString());
+    verify(mapper).toResponse(any(User.class));
   }
 
   @Test
   @DisplayName("Test find by id endpoint with not_found")
   void should_test_find_by_id_endpoint_with_not_found() {
-    when(service.findById(anyString())).thenReturn(Mono.error(new ObjectNotFoundException("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User")));
+    when(service.findById(anyString())).thenReturn(Mono.error(
+        new ObjectNotFoundException("Object not found, ID: 640e8f7dc774e57dfa64cf, Type: User")));
 
     webTestClient.get().uri("/users/" + "640e8f7dc774e57dfa64cf")
         .accept(APPLICATION_JSON)
@@ -137,10 +142,33 @@ class UserControllerImplTest {
         .jsonPath("$.[0].name").isEqualTo("Maria Brown")
         .jsonPath("$.[0].email").isEqualTo("maria@email.com")
         .jsonPath("$.[0].password").isEqualTo(123);
+
+    verify(service).findAll();
+    verify(mapper).toResponse(any(User.class));
   }
 
   @Test
-  void update() {
+  @DisplayName("Test update endpoint with success")
+  void should_test_update_endpoint_with_success() {
+    final var request = new UserRequest(NAME, EMAIL, PASSWORD);
+    final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
+
+    when(service.update(anyString(), any(UserRequest.class))).thenReturn(just(User.builder().build()));
+    when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+    webTestClient.patch().uri("/users/" + ID)
+        .contentType(APPLICATION_JSON)
+        .body(fromValue(request))
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody()
+        .jsonPath("$.id").isEqualTo(ID)
+        .jsonPath("$.name").isEqualTo(NAME)
+        .jsonPath("$.email").isEqualTo(EMAIL)
+        .jsonPath("$.password").isEqualTo(PASSWORD);
+
+    verify(service).update(anyString(), any(UserRequest.class));
+    verify(mapper).toResponse(any(User.class));
   }
 
   @Test
