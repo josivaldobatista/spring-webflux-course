@@ -29,8 +29,8 @@ public class UserControllerImpl implements UserController {
   @Override
   public ResponseEntity<Mono<UserResponse>> findById(String id) {
     return ResponseEntity.ok().body(service.findById(id).map(
-        mapper::toResponse)
-    ); // <- Method reference
+        mapper::toResponse) // <- Method reference
+    );
   }
 
   @Override
