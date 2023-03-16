@@ -1,8 +1,11 @@
 package br.com.jfb.webfluxcourse.controller;
 
 import br.com.jfb.webfluxcourse.entity.User;
+import br.com.jfb.webfluxcourse.mapper.UserMapper;
 import br.com.jfb.webfluxcourse.model.request.UserRequest;
+import br.com.jfb.webfluxcourse.model.response.UserResponse;
 import br.com.jfb.webfluxcourse.service.UserService;
+import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +33,12 @@ class UserControllerImplTest {
 
   @MockBean
   private UserService service;
+
+  @MockBean
+  private UserMapper mapper;
+
+  @MockBean
+  private MongoClient mongoClient;
 
   @Test
   @DisplayName("Test endpoint save with success")
@@ -69,7 +78,23 @@ class UserControllerImplTest {
   }
 
   @Test
-  void findById() {
+  @DisplayName("Test find by id endpoint with success")
+  void should_test_find_by_id_endpoint_with_success() {
+    final var id = "123456";
+    final var userResponse = new UserResponse(id, "Maria Brown", "maria@email.com", "123");
+
+    when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+    when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+    webTestClient.get().uri("/users/" + id)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody()
+        .jsonPath("$.id").isEqualTo(id)
+        .jsonPath("$.name").isEqualTo("Maria Brown")
+        .jsonPath("$.email").isEqualTo("maria@email.com")
+        .jsonPath("$.password").isEqualTo(123);
   }
 
   @Test
